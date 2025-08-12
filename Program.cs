@@ -26,7 +26,7 @@ var host = Host.CreateDefaultBuilder(args)
 
         // Repos & services
         services.AddScoped<IOrderRepository, OrderRepository>();
-        services.AddSingleton<IProductRepository, ProductRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IOrderService, OrderService>();
 
         // Hosted interactive console worker
