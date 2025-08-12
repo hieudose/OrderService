@@ -1,8 +1,10 @@
 using System;
+using LegacyOrderService.Data;
 using LegacyOrderService.HostedServices;
 using LegacyOrderService.Models;
 using LegacyOrderService.Repositories;
 using LegacyOrderService.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,8 +21,11 @@ var host = Host.CreateDefaultBuilder(args)
         var dbPath = configuration.GetValue<string>("Database:Path") ?? "orders.db";
         var connectionString = $"Data Source={dbPath}";
 
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlite(connectionString));
+
         // Repos & services
-        services.AddScoped<IOrderRepository>(sp => new OrderRepository(connectionString));
+        services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddSingleton<IProductRepository, ProductRepository>();
         services.AddScoped<IOrderService, OrderService>();
 
