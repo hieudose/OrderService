@@ -16,13 +16,16 @@ namespace LegacyOrderService.Data
 
         public double GetPrice(string productName)
         {
+            if (string.IsNullOrWhiteSpace(productName))
+                throw new ArgumentException("productName required", nameof(productName));
+
             // Simulate an expensive lookup
             Thread.Sleep(500);
 
             if (_productPrices.TryGetValue(productName, out var price))
                 return price;
 
-            throw new Exception("Product not found");
+            throw new KeyNotFoundException($"Product '{productName}' not found.");
         }
     }
 }
