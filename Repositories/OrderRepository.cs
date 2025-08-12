@@ -1,12 +1,16 @@
-using System;
+﻿using LegacyOrderService.Models;
 using Microsoft.Data.Sqlite;
-using LegacyOrderService.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace LegacyOrderService.Data
+namespace LegacyOrderService.Repositories
 {
-    public class OrderRepository(string connectionString)
+    public class OrderRepository(string connectionString) : IOrderRepository
     {
-        public void Save(Order order)
+        public async Task AddAsync(Order order)
         {
             using var connection = new SqliteConnection(connectionString);
             connection.Open();
@@ -21,7 +25,7 @@ namespace LegacyOrderService.Data
             command.Parameters.AddWithValue("$quantity", order.Quantity);
             command.Parameters.AddWithValue("$price", order.Price);
 
-            command.ExecuteNonQuery();
+            await command.ExecuteNonQueryAsync();
         }
     }
 }

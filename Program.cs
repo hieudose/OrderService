@@ -1,70 +1,38 @@
 using System;
+using LegacyOrderService.HostedServices;
 using LegacyOrderService.Models;
-using LegacyOrderService.Data;
+using LegacyOrderService.Repositories;
+using LegacyOrderService.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace LegacyOrderService
-{
-    class Program
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureAppConfiguration((ctx, builder) =>
     {
-        static void Main(string[] args)
-        {
-            string dbPath = Path.Combine(AppContext.BaseDirectory, "orders.db");
-            string connectionString = $"Data Source={dbPath}";
+        builder.AddJsonFile("appsettings.json", optional: true);
+    })
+    .ConfigureServices((ctx, services) =>
+    {
+        var configuration = ctx.Configuration;
+        var dbPath = configuration.GetValue<string>("Database:Path") ?? "orders.db";
+        var connectionString = $"Data Source={dbPath}";
 
-            var productRepo = new ProductRepository();
-            var orderRepo = new OrderRepository(connectionString);
+        // Repos & services
+        services.AddScoped<IOrderRepository>(sp => new OrderRepository(connectionString));
+        services.AddSingleton<IProductRepository, ProductRepository>();
+        services.AddScoped<IOrderService, OrderService>();
 
-            Console.WriteLine("Welcome to Order Processor!");
+        // Hosted interactive console worker
+        services.AddHostedService<InteractiveOrderWorker>();
+    })
+    .ConfigureLogging(logging =>
+    {
+        logging.AddConsole();
+    })
+    .Build();
 
-            Console.Write("Enter customer name: ");
-            string name = Console.ReadLine() ?? "";
+await host.RunAsync();
 
-            Console.Write("Enter product name: ");
-            string product = Console.ReadLine() ?? "";
 
-            double price = 0;
-            try
-            {
-                price = productRepo.GetPrice(product);
-            }
-            catch (Exception ex)
-            {
-                ExitWithMessage(ex.Message);
-                return;
-            }
-
-            Console.Write("Enter quantity: ");
-            if (!int.TryParse(Console.ReadLine(), out int qty) || qty <= 0)
-            {
-                ExitWithMessage("Invalid quantity.");
-                return;
-            }
-
-            var order = new Order
-            {
-                CustomerName = name,
-                ProductName = product,
-                Quantity = qty,
-                Price = price
-            };
-
-            double total = order.Quantity * order.Price;
-
-            Console.WriteLine("Processing order...");
-            Console.WriteLine($"Customer: {order.CustomerName}");
-            Console.WriteLine($"Product: {order.ProductName}");
-            Console.WriteLine($"Quantity: {order.Quantity}");
-            Console.WriteLine($"Total: ${total:F2}");
-
-            orderRepo.Save(order);
-
-            ExitWithMessage("Order saved to database.");
-        }
-        static void ExitWithMessage(string message)
-        {
-            Console.WriteLine(message);
-            Console.WriteLine("Press any key to exit...");
-            Console.ReadKey();
-        }
-    }
-}
