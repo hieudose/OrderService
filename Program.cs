@@ -15,36 +15,56 @@ namespace LegacyOrderService
             var orderRepo = new OrderRepository(connectionString);
 
             Console.WriteLine("Welcome to Order Processor!");
-            Console.WriteLine("Enter customer name:");
-            string name = Console.ReadLine();
 
-            Console.WriteLine("Enter product name:");
-            string product = Console.ReadLine();
-            double price = productRepo.GetPrice(product);
+            Console.Write("Enter customer name: ");
+            string name = Console.ReadLine() ?? "";
 
+            Console.Write("Enter product name: ");
+            string product = Console.ReadLine() ?? "";
 
-            Console.WriteLine("Enter quantity:");
-            int qty = Convert.ToInt32(Console.ReadLine());
+            double price = 0;
+            try
+            {
+                price = productRepo.GetPrice(product);
+            }
+            catch (Exception ex)
+            {
+                ExitWithMessage(ex.Message);
+                return;
+            }
 
-            Console.WriteLine("Processing order...");
+            Console.Write("Enter quantity: ");
+            if (!int.TryParse(Console.ReadLine(), out int qty) || qty <= 0)
+            {
+                ExitWithMessage("Invalid quantity.");
+                return;
+            }
 
-            Order order = new Order();
-            order.CustomerName = name;
-            order.ProductName = product;
-            order.Quantity = qty;
-            order.Price = 10.0;
+            var order = new Order
+            {
+                CustomerName = name,
+                ProductName = product,
+                Quantity = qty,
+                Price = price
+            };
 
             double total = order.Quantity * order.Price;
 
-            Console.WriteLine("Order complete!");
-            Console.WriteLine("Customer: " + order.CustomerName);
-            Console.WriteLine("Product: " + order.ProductName);
-            Console.WriteLine("Quantity: " + order.Quantity);
-            Console.WriteLine("Total: $" + price);
+            Console.WriteLine("Processing order...");
+            Console.WriteLine($"Customer: {order.CustomerName}");
+            Console.WriteLine($"Product: {order.ProductName}");
+            Console.WriteLine($"Quantity: {order.Quantity}");
+            Console.WriteLine($"Total: ${total:F2}");
 
-            Console.WriteLine("Saving order to database...");
             orderRepo.Save(order);
-            Console.WriteLine("Done.");
+
+            ExitWithMessage("Order saved to database.");
+        }
+        static void ExitWithMessage(string message)
+        {
+            Console.WriteLine(message);
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
         }
     }
 }
