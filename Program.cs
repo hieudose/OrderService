@@ -8,13 +8,18 @@ namespace LegacyOrderService
     {
         static void Main(string[] args)
         {
+            string dbPath = Path.Combine(AppContext.BaseDirectory, "orders.db");
+            string connectionString = $"Data Source={dbPath}";
+
+            var productRepo = new ProductRepository();
+            var orderRepo = new OrderRepository(connectionString);
+
             Console.WriteLine("Welcome to Order Processor!");
             Console.WriteLine("Enter customer name:");
             string name = Console.ReadLine();
 
             Console.WriteLine("Enter product name:");
             string product = Console.ReadLine();
-            var productRepo = new ProductRepository();
             double price = productRepo.GetPrice(product);
 
 
@@ -38,8 +43,7 @@ namespace LegacyOrderService
             Console.WriteLine("Total: $" + price);
 
             Console.WriteLine("Saving order to database...");
-            var repo = new OrderRepository();
-            repo.Save(order);
+            orderRepo.Save(order);
             Console.WriteLine("Done.");
         }
     }
