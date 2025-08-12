@@ -1,4 +1,8 @@
-﻿using System;
+﻿using LegacyOrderService.Data;
+using LegacyOrderService.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,27 +10,11 @@ using System.Threading.Tasks;
 
 namespace LegacyOrderService.Repositories
 {
-    public class ProductRepository : IProductRepository
+    public class ProductRepository(AppDbContext dbContext) : IProductRepository
     {
-        private readonly IReadOnlyDictionary<string, double> _prices = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
+        public async Task<Product> GetProductAsync(string productName)
         {
-            ["Widget"] = 12.99,
-            ["Gadget"] = 15.49,
-            ["Doohickey"] = 8.75
-        };
-
-        public Task<double> GetUnitPriceAsync(string productName)
-        {
-            if (string.IsNullOrWhiteSpace(productName))
-                throw new ArgumentException("productName required", nameof(productName));
-
-            // Simulate an expensive lookup
-            Thread.Sleep(500);
-
-            if (_prices.TryGetValue(productName, out var price))
-                return Task.FromResult(price);
-
-            throw new KeyNotFoundException($"Product '{productName}' not found.");
+            return await dbContext.Products.FirstOrDefaultAsync(n => n.ProductName == productName);
         }
     }
 }

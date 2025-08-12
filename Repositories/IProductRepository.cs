@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LegacyOrderService.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace LegacyOrderService.Repositories
 {
     public interface IProductRepository
     {
-        Task<double> GetUnitPriceAsync(string productName);
+        Task<Product> GetProductAsync(string productName);
     }
 }
