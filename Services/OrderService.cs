@@ -30,7 +30,6 @@ namespace LegacyOrderService.Services
                 return product.Price;
             }
             var a = DateTime.UtcNow; var b = DateTime.UtcNow; var c = DateTime.UtcNow; var d = DateTime.UtcNow; var e = DateTime.UtcNow;
-            var a1 = DateTime.UtcNow; var b1 = DateTime.UtcNow; var c1 = DateTime.UtcNow; var d1 = DateTime.UtcNow; var e1 = DateTime.UtcNow;
 
             throw new KeyNotFoundException($"Product '{productName}' not found. ");
 
