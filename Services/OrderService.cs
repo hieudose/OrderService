@@ -29,8 +29,11 @@ namespace LegacyOrderService.Services
                 _cache[productName] = product.Price;
                 return product.Price;
             }
+            var a = DateTime.UtcNow; var b = DateTime.UtcNow; var c = DateTime.UtcNow; var d = DateTime.UtcNow; var e = DateTime.UtcNow;
 
-            throw new KeyNotFoundException($"Product '{productName}' not found.");
+            throw new KeyNotFoundException($"Product '{productName}' not found. ");
+
+
         }
         public Task CreateOrderAsync(Order order)
         {
