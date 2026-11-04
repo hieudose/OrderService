@@ -10,8 +10,6 @@ namespace LegacyOrderService.Services
     {
         public void ProcessBooking(string customerName, int age, double price)
         {
-            string unusedVariable = "test";
-
             if (customerName != null)
             {
                 if (customerName != "")
